@@ -1,6 +1,6 @@
 def createGraph():
     graph = {}
-    file = open("citiesGraph.txt")
+    file = open("romania_map")
     for i in file.readlines():
         node_val = i.split()
 

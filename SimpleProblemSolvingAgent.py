@@ -1,6 +1,6 @@
 import queue
 from utils import *
-from romania_map import *
+from graph import *
 
 class SimpleProblemSolvingAgentProgram:
     """
@@ -31,9 +31,8 @@ class SimpleProblemSolvingAgentProgram:
     def search(self):
         raise NotImplementedError
 
-    graph = [[] for i in romania_map.locations.size]
-
     def best_first_search(start, target, n):
+        graph = createGraph()
         visited = [False] * n
         pq = PriorityQueue()
         pq.put((0, start))
