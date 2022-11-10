@@ -1,34 +1,34 @@
-def createGraph():
-    graph = {}
-    file = open("romania_map")
-    for i in file.readlines():
-        node_val = i.split()
+class Graph:
+    # Constructor
+    def __init__(self, num_of_nodes, directed=True):
+        self.m_num_of_nodes = num_of_nodes
+        self.m_directed = directed
 
-        if node_val[0] in graph and node_val[1] in graph:
-            c = graph.get(node_val[0])
-            c.append([node_val[1], node_val[2]])
-            graph.update({node_val[0]: c})
+        # Different representations of a graph
+        self.m_list_of_edges = []
 
-            c = graph.get(node_val[1])
-            c.append([node_val[0], node_val[2]])
-            graph.update({node_val[1]: c})
 
-        elif node_val[0] in graph:
-            c = graph.get(node_val[0])
-            c.append([node_val[1], node_val[2]])
-            graph.update({node_val[0]: c})
+    # Add edge to a graph
+    def add_edge(self, node1, node2, weight=1):
+        # Add the edge from node1 to node2
+        self.m_list_of_edges.append([node1, node2, weight])
 
-            graph[node_val[1]] = [[node_val[0], node_val[2]]]
+        # If a graph is undirected, add the same edge,
+        # but also in the opposite direction
+        if not self.m_directed:
+            self.m_list_of_edges.append([node2, node1, weight])
 
-        elif node_val[1] in graph:
-            c = graph.get(node_val[1])
-            c.append([node_val[0], node_val[2]])
-            graph.update({node_val[1]: c})
 
-            graph[node_val[0]] = [[node_val[1], node_val[2]]]
+    # Print a graph representation
+    def print_edge_list(self):
+        num_of_edges = len(self.m_list_of_edges)
+        for i in range(num_of_edges):
+            print("edge ", i + 1, ": ", self.m_list_of_edges[i])
 
-        else:
-            graph[node_val[0]] = [[node_val[1], node_val[2]]]
-            graph[node_val[1]] = [[node_val[0], node_val[2]]]
+    def find_neighbors(self, state):
+        neighbors = []
+        for edge in self.m_list_of_edges:
+            if edge[0] == state:
+                neighbors.append([edge[1], edge[2]])
 
-    return graph
+        return neighbors
