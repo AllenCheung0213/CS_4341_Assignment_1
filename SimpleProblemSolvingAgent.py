@@ -35,59 +35,89 @@ class SimpleProblemSolvingAgentProgram:
     def search(self):
         raise NotImplementedError
 
-    def best_first_search(self):
-        start = self.state
-        target = self.goal
-        graph = createGraph()
+    # def best_first_search(self):
+    #     start = self.state
+    #     target = self.goal
+    #     graph = createGraph()
 
-        city_names = ["Arad",
-                      "Bucharest",
-                      "Craiova",
-                      "Dobreta",
-                      "Eforie",
-                      "Fagaras",
-                      "Giurgiu",
-                      "Hirsova",
-                      "Iasi",
-                      "Lugoj",
-                      "Mehadia",
-                      "Neamt",
-                      "Oradea",
-                      "Pitesti",
-                      "Rimnicu_Vilcea",
-                      "Sibiu",
-                      "Timisoara",
-                      "Urziceni",
-                      "Vaslui",
-                      "Zerind"]
+    #     city_names = ["Arad",
+    #                   "Bucharest",
+    #                   "Craiova",
+    #                   "Dobreta",
+    #                   "Eforie",
+    #                   "Fagaras",
+    #                   "Giurgiu",
+    #                   "Hirsova",
+    #                   "Iasi",
+    #                   "Lugoj",
+    #                   "Mehadia",
+    #                   "Neamt",
+    #                   "Oradea",
+    #                   "Pitesti",
+    #                   "Rimnicu_Vilcea",
+    #                   "Sibiu",
+    #                   "Timisoara",
+    #                   "Urziceni",
+    #                   "Vaslui",
+    #                   "Zerind"]
 
-        visited = {}
-        for city in city_names:
-            visited[city] = False
+    #     visited = {}
+    #     for city in city_names:
+    #         visited[city] = False
 
-        pq = queue.PriorityQueue()
-        pq.put((0, start))
-        visited[start] = True
+    #     pq = queue.PriorityQueue()
+    #     pq.put((0, start))
+    #     visited[start] = True
 
-        while pq.not_empty:
-            current = pq.get()[1]
-            # Displaying the path having lowest cost
-            #print(current, end=" ")
-            if current == target:
-                break
+    #     while pq.not_empty:
+    #         current = pq.get()[1]
+    #         # Displaying the path having lowest cost
+    #         #print(current, end=" ")
+    #         if current == target:
+    #             break
 
-            for city, cost in graph[current]:
-                if not visited[city]:
-                    visited[city] = True
-                    pq.put((cost, city))
-        print(pq.queue)
+    #         for city, cost in graph[current]:
+    #             if not visited[city]:
+    #                 visited[city] = True
+    #                 pq.put((cost, city))
+    #     print(pq.queue)
 
-    def astar_search(self, h=None, display=False):
-        """A* search is best-first graph search with f(n) = g(n)+h(n).
-        You need to specify the h function when you call astar_search, or
-        else in your Problem subclass."""
-        h = memoize(h or self.h, 'h')
-        return self.best_first_graph_search(self, lambda n: n.path_cost + h(n), display)
+    def best_first_graph_search(self, f, display=False):
+        """Search nodes with minimum f(node) first."""
+        node = self
+        frontier = PriorityQueue('min', f)
+        frontier.append(node)
+        explored = set()
+        while frontier:
+            node = frontier.pop()
+            if self.goal_test(node.state):
+                return node
+            explored.add(node.state)
+            pnode = node.parent
+            while pnode:
+                if pnode.state == node.state and pnode.path_cost <= node.path_cost:
+                    break
+                pnode = pnode.parent
+            else:
+                for child in node.expand(self):
+                    if child.state not in explored and child not in frontier:
+                        frontier.append(child)
+                    elif child in frontier:
+                        incumbent = frontier[child]
+                        if f(child) < f(incumbent):
+                            del frontier[incumbent]
+                            frontier.append(child)
+        return None
+
+    # Implement the astar search algorithm
+    def astar_search(self, problem, h=None):
+        """A* search is best-first graph search with f(n) = g(n)+h(n)."""
+        h = memoize(h or problem.h, 'h')
+        return self.best_first_graph_search(lambda n: n.path_cost + h(n), display=problem.display)
+    
+
+    
+
 
 # def main():
 #     agent = SimpleProblemSolvingAgent('Arad', 'Bucharest')
