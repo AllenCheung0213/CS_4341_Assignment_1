@@ -1,11 +1,10 @@
-import SimpleProblemSolvingAgent
-from SimpleProblemSolvingAgent import SimpleProblemSolvingAgentProgram
+from SimpleProblemSolvingAgent import *
 from romania_map import romania_map
 
 def main():
-    agent = SimpleProblemSolvingAgent.SimpleProblemSolvingAgentProgram('Arad', 'Bucharest')
-    print(agent.best_first_search())
-    print('j')
+    romania_problem = romaniaAgent("Arad", "Bucharest", romania_map)
+    print(romania_problem.best_first_graph_search(romania_problem, 21))
+
     pass
 
 if __name__ =="__main__":

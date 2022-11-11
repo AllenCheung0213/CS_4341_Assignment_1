@@ -1,9 +1,7 @@
-import queue
 from queue import *
-from romania_map import romania_map
-from utils import *
-from graph import *
 
+from search import *
+from utils import *
 
 class SimpleProblemSolvingAgentProgram:
     """
@@ -11,76 +9,36 @@ class SimpleProblemSolvingAgentProgram:
     Abstract framework for a problem-solving agent.
     """
 
-    def __init__(self, initial_state=None, goal=None):
+    def __init__(self, initial_state=None):
         """State is an abstract representation of the state
         of the world, and seq is the list of actions required
         to get to a particular state from the initial state(root)."""
-        self.goal = goal
         self.state = initial_state
         self.seq = []
 
-    def __call__(self):
-        print('hi')
-        # """[Figure 3.1] Formulate a goal and problem, then
-        # search for a sequence of actions to solve it."""
-        # if not self.seq:
-        #     if (self.goal!=None and self.state!=None):
-        #         goal = self.goal
-        #         self.seq = self.search(self)
-        #         if not self.seq:
-        #             return None
-        #     return self.seq.pop(0)
-        # #return
+    def __call__(self, percept):
+        """[Figure 3.1] Formulate a goal and problem, then
+        search for a sequence of actions to solve it."""
+        self.state = self.update_state(self.state, percept)
+        if not self.seq:
+            goal = self.formulate_goal(self.state)
+            problem = self.formulate_problem(self.state, goal)
+            if not self.seq:
+                return None
+        return self.seq.pop(0)
 
-    def search(self):
+    def update_state(self, state, percept):
         raise NotImplementedError
 
-    def best_first_search(self):
-        start = self.state
-        target = self.goal
-        graph = createGraph()
+    def formulate_goal(self, state):
+        raise NotImplementedError
 
-        city_names = ["Arad",
-                      "Bucharest",
-                      "Craiova",
-                      "Dobreta",
-                      "Eforie",
-                      "Fagaras",
-                      "Giurgiu",
-                      "Hirsova",
-                      "Iasi",
-                      "Lugoj",
-                      "Mehadia",
-                      "Neamt",
-                      "Oradea",
-                      "Pitesti",
-                      "Rimnicu_Vilcea",
-                      "Sibiu",
-                      "Timisoara",
-                      "Urziceni",
-                      "Vaslui",
-                      "Zerind"]
+    def formulate_problem(self, state, goal):
+        raise NotImplementedError
 
-        visited = {}
-        for city in city_names:
-            visited[city] = False
+    def search(self, problem):
+        raise NotImplementedError
 
-        pq = queue.PriorityQueue()
-        pq.put((0, start))
-        visited[start] = True
-
-        while pq.not_empty:
-            current = pq.get()[1]
-            # Displaying the path having lowest cost
-            #print(current, end=" ")
-            if current == target:
-                break
-
-            for city, cost in graph[current]:
-                if not visited[city]:
-                    visited[city] = True
-                    pq.put((cost, city))
-        print(pq.queue)
 
     def astar_search(self, h=None, display=False):
         """A* search is best-first graph search with f(n) = g(n)+h(n).
@@ -89,12 +47,64 @@ class SimpleProblemSolvingAgentProgram:
         h = memoize(h or self.h, 'h')
         return self.best_first_graph_search(self, lambda n: n.path_cost + h(n), display)
 
-# def main():
-#     agent = SimpleProblemSolvingAgent('Arad', 'Bucharest')
-#     # agent.SimpleProblemSolvingAgentProgram.best_first_search()
-#     print(agent.state)
-#     # print(bfs)
-#     print('j')
-#
-# if __name__ =="__main__":
-#     main()
+class romaniaAgent(SimpleProblemSolvingAgentProgram):
+    def __init__(self, initial, goal, map):
+        self.graph = map
+        self.state = initial
+        self.goal = goal
+        self.seq = []
+    def update_state(self, state, percept):
+        return percept
+
+    def formulate_goal(self, state):
+        goal = self.goal
+        return goal
+
+    def formulate_problem(self, state, goal):
+        problem = state
+        return problem
+
+    def best_first_graph_search(problem, f, display=False):
+        """Search the nodes with the lowest f scores first.
+        You specify the function f(node) that you want to minimize; for example,
+        if f is a heuristic estimate to the goal, then we have greedy best
+        first search; if f is node.depth then we have breadth-first search.
+        There is a subtlety: the line "f = memoize(f, 'f')" means that the f
+        values will be cached on the nodes as they are computed. So after doing
+        a best first search you can examine the f values of the path returned."""
+        f = memoize(f, 'f')
+        node = Node(problem.state)
+        frontier = PriorityQueue('min', f)
+        frontier.append(node)
+        explored = set()
+        while frontier:
+            node = frontier.pop()
+            if problem.goal_test(node.state):
+                if display:
+                    print(len(explored), "paths have been expanded and", len(frontier), "paths remain in the frontier")
+                    print(explored)
+                    print(node.path_cost)
+                return node
+            explored.add(node.state)
+            for child in node.expand(problem):
+                if child.state not in explored and child not in frontier:
+                    frontier.append(child)
+                elif child in frontier:
+                    if f(child) < frontier[child]:
+                        del frontier[child]
+                        frontier.append(child)
+        return None
+
+    def goal_test(self, state):
+        """ Given a state, return True if state is a goal state or False, otherwise """
+
+        return state == self.goal
+    def actions(self, A):
+        """The actions at a graph node are just its neighbors."""
+        return list(self.graph.get(A).keys())
+
+    def result(self, state, action):
+        """The result of going to a neighbor is just that neighbor."""
+        return action
+    def path_cost(self, cost_so_far, A, action, B):
+        return cost_so_far + (self.graph.get(A, B) or np.inf)
