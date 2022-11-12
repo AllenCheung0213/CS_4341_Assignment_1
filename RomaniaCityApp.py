@@ -1,14 +1,11 @@
-import SimpleProblemSolvingAgent
-import search
 from SimpleProblemSolvingAgent import *
-from search import romania_map
 
 
 def start():
-    print("Please read the Romania map. The map is stored in romania_map file.")
     print("Please enter any two (different) cities from the map.")
     city1 = input("City 1: ")
     city2 = input("City 2: ")
+    print("")
     return city1, city2
 
 
@@ -41,9 +38,20 @@ def main():
 
     else:
         # RomaniaAgent is a SimpleProblemSolvingAgent
-        call = romaniaAgent(city1, city2)
+        problem = GraphProblem(city1, city2)
+        call = SimpleProblemSolvingAgent(problem)
         call()
+        print("Would you like to find the optimal path between any two cities again? (yes/no)")
+        again_question = input()
+        if again_question.lower() == "yes":
+            print("")
+            main()
+        else:
+            print("")
+            print("Thank You for Using Our App!")
 
 
 if __name__ == "__main__":
+    print("Please read the Romania map. The map is stored in romania_map file.")
+    print("")
     main()
