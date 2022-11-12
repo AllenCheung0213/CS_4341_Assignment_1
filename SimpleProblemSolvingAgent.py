@@ -1,7 +1,7 @@
 from queue import *
-
 from search import *
 from utils import *
+
 
 class SimpleProblemSolvingAgentProgram:
     """
@@ -39,7 +39,6 @@ class SimpleProblemSolvingAgentProgram:
     def search(self, problem):
         raise NotImplementedError
 
-
     def astar_search(self, h=None, display=False):
         """A* search is best-first graph search with f(n) = g(n)+h(n).
         You need to specify the h function when you call astar_search, or
@@ -47,12 +46,22 @@ class SimpleProblemSolvingAgentProgram:
         h = memoize(h or self.h, 'h')
         return self.best_first_graph_search(self, lambda n: n.path_cost + h(n), display)
 
+
 class romaniaAgent(SimpleProblemSolvingAgentProgram):
-    def __init__(self, initial, goal, map):
-        self.graph = map
+    def __init__(self, initial, goal):
+        self.graph = romania_map
         self.state = initial
         self.goal = goal
         self.seq = []
+
+    def __call__(self):
+        romania_problem = GraphProblem(self.state, self.goal, self.graph)
+        final_path = best_first_graph_search(romania_problem, lambda n: n.state).solution()
+        final_path.insert(0, self.state)
+        print("Best first graph search path: ", final_path)
+        print("Best first graph search cost:", best_first_graph_search(romania_problem, lambda n: n.state).path_cost)
+
+
     def update_state(self, state, percept):
         return percept
 
@@ -65,25 +74,14 @@ class romaniaAgent(SimpleProblemSolvingAgentProgram):
         return problem
 
     def best_first_graph_search(problem, f, display=False):
-        """Search the nodes with the lowest f scores first.
-        You specify the function f(node) that you want to minimize; for example,
-        if f is a heuristic estimate to the goal, then we have greedy best
-        first search; if f is node.depth then we have breadth-first search.
-        There is a subtlety: the line "f = memoize(f, 'f')" means that the f
-        values will be cached on the nodes as they are computed. So after doing
-        a best first search you can examine the f values of the path returned."""
         f = memoize(f, 'f')
-        node = Node(problem.state)
+        node = Node(problem.initial)
         frontier = PriorityQueue('min', f)
         frontier.append(node)
         explored = set()
         while frontier:
             node = frontier.pop()
             if problem.goal_test(node.state):
-                if display:
-                    print(len(explored), "paths have been expanded and", len(frontier), "paths remain in the frontier")
-                    print(explored)
-                    print(node.path_cost)
                 return node
             explored.add(node.state)
             for child in node.expand(problem):
@@ -99,6 +97,7 @@ class romaniaAgent(SimpleProblemSolvingAgentProgram):
         """ Given a state, return True if state is a goal state or False, otherwise """
 
         return state == self.goal
+
     def actions(self, A):
         """The actions at a graph node are just its neighbors."""
         return list(self.graph.get(A).keys())
@@ -106,5 +105,6 @@ class romaniaAgent(SimpleProblemSolvingAgentProgram):
     def result(self, state, action):
         """The result of going to a neighbor is just that neighbor."""
         return action
+
     def path_cost(self, cost_so_far, A, action, B):
         return cost_so_far + (self.graph.get(A, B) or np.inf)
