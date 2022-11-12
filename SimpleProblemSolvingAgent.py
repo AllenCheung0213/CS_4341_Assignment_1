@@ -1,7 +1,6 @@
 import functools
 import heapq
 import numpy as np
-from romania_map import *
 
 
 # utils
@@ -214,9 +213,9 @@ class Node:
 class GraphProblem(Problem):
     """The problem of searching a graph from one node to another."""
 
-    def __init__(self, initial, goal):
+    def __init__(self, initial, goal, graph):
         super().__init__(initial, goal)
-        self.graph = romania_map
+        self.graph = graph
 
     def actions(self, A):
         """The actions at a graph node are just its neighbors."""
@@ -259,7 +258,7 @@ class SimpleProblemSolvingAgent():
         self.seq = []
 
     def __call__(self):
-        romania_problem = GraphProblem(self.state, self.goal)
+        romania_problem = GraphProblem(self.state, self.goal, self.graph)
         bfgs_final_path = best_first_graph_search(romania_problem, lambda n: romania_problem.h(n)).solution()
         bfgs_final_path.insert(0, self.state)
         print("Best First Graph Search")
