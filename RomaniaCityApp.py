@@ -3,7 +3,7 @@ from romania_map import romania_map
 
 def main():
     romania_problem = romaniaAgent("Arad", "Bucharest", romania_map)
-    print(romania_problem.best_first_graph_search(romania_problem, 21))
+    print(romania_problem.best_first_graph_search(romania_problem, 2))
 
     pass
 
