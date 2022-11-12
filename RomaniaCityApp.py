@@ -37,7 +37,6 @@ def main():
         main()
 
     else:
-        # RomaniaAgent is a SimpleProblemSolvingAgent
         problem = GraphProblem(city1, city2)
         call = SimpleProblemSolvingAgent(problem)
         call()
