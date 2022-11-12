@@ -300,13 +300,6 @@ class SimpleProblemSolvingAgent():
     def path_cost(self, cost_so_far, A, action, B):
         return cost_so_far + (self.graph.get(A, B) or np.inf)
 
-    def astar_search(self, h=None, display=False):
-        """A* search is best-first graph search with f(n) = g(n)+h(n).
-        You need to specify the h function when you call astar_search, or
-        else in your Problem subclass."""
-        h = memoize(h or self.h, 'h')
-        return best_first_graph_search(self, lambda n: n.path_cost + h(n), display)
-
 
 # search algorithms
 def best_first_graph_search(problem, f):
